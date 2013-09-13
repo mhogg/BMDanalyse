@@ -4,7 +4,7 @@
 
 Copyright 2013, Michael Hogg (michael.christopher.hogg@gmail.com)
 
-MIT license - See pyvxray/LICENSE.txt for details on usage and distribution
+MIT license - See LICENSE.txt for details on usage and distribution
 
 ## About
 
@@ -24,4 +24,6 @@ Written in pure Python using PyQt4/PySide, pyqtgraph, numpy, PIL and matplotlib.
 * Python Imaging Library (PIL) >= v1.1.6
 
 **NOTES:**
-1.  Some issues with Python 2.6 due to pyQtGraph v0.9.7. These will be fixed in the next release of pyQtGraph
+
+1.  All these requirements are available within the Enthought Canopy or Anaconda Python distributions
+2.  Some issues with window zoom when using Python 2.6. These will be fixed in the next release of pyQtGraph
