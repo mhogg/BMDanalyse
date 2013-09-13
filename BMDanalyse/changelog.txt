@@ -1,0 +1,47 @@
+
+
+BMDanalyse 0.1.4, 2013-XX-XX
+----------------------------
+- 
+
+
+BMDanalyse 0.1.3, 2013-06-06
+----------------------------
+- v0.1.2 and below not working in PySide as PySide does not support multiple 
+  inheritence for old style classes. All BMDanalyse old style python classes 
+  were modified to new style to make them compatible with PySide
+- Various fixes to make compatible with PySide. This includes modifying 
+  uses of QString and QStringList which are not supported by PySide (and PyQt
+  API #2)
+- Fix to functions loadROI and saveROI of class MultiRoiViewBox in 
+  ViewBoxCustom.py. Functions getOpenFileName(s) and getSaveFileName return a 
+  tuple in PySide but return a QStringList in PyQt.
+  Also fix to functions loadImages and BMDtoCSVfile of class MainWindow in 
+  BMDanalyse.py for the same reason.
+- Fix to imageFileList (type QtGui.QListWidget()). PySide doesn't support
+  function setItemSelected. Rather use setSelected function of QListWidgetItem
+- Request to pyqtgraph to use orderdict from PyPi for Python 2.6. Ordered
+  dictionary implemented by pyqtgraph gives errors when zooming ROIs
+- Request to pyqtgraph to update to MatplotlibWidget class so that it works
+  with PySide
+- Change to BMDanalyse.run() to test if QApplication already exists. This was
+  required to be able to reload the BMDanalyse GUI when using PySide.
+
+BMDanalyse 0.1.2, 2013-05-23 (Not released)
+-------------------------------------------
+- Added support for polyline ROIs. Polyline ROIs are drawn by the user
+- Added version to BMDanalyse.__init__ so it could be imported into setup.py
+- Removed dependency on scipy (only signle function scipy.misc.imread() used). 
+  Now use PIL instead to read image and convert it to a numpy array. 
+- All icons now png image format. Previously some were Windows icon files (ico)
+
+BMDanalyse 0.1.1, 2013-03-17
+----------------------------
+- Fixed bug that prevented Image Analysis Window from updating even if the user
+  had changed the order of images in the main input image window
+- Reset image index to zero every time Image Analysis Window is opened so first
+  image is always shown
+- Added QFrame with label to Image Analysis Window to identify the index of the 
+  current image displayed
+- Provided new sample medical images (output from pyvXRAY - soon to be released 
+  on PyPi), both with and without implant
