@@ -19,7 +19,7 @@ Written in pure Python using PyQt/PySide, pyqtgraph, numpy, matplotlib and PIL. 
 * PyQt4 >= 4.9.7 or PySide >= 1.1
 * numpy >= 1.4
 * matplotlib >= 1.0
-* Python Imaging Library (PIL) >= v1.1.6
+* Python Imaging Library (PIL) >= 1.1.6
 
 **NOTES:**
 
