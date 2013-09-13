@@ -14,8 +14,6 @@ Written in pure Python using PyQt4/PySide, pyqtgraph, numpy, PIL and matplotlib.
 
 ## Requirements
 
-### Software requirements
-
 * Python >= 2.6
 * pyQtGraph >= v0.9.7
 * PyQt4 >= 4.9.7 or PySide >= 1.1
