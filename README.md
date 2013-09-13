@@ -23,5 +23,5 @@ Written in pure Python using PyQt/PySide, pyqtgraph, numpy, matplotlib and PIL. 
 
 **NOTES:**
 
-1.  All these requirements are available within the Enthought Canopy or Anaconda Python distributions
+1.  All these requirements, with the exception of PyQtGraph, are available within the Enthought Canopy or Anaconda Python distributions
 2.  Some issues with window zoom when using Python 2.6. These will be fixed in the next release of pyQtGraph
