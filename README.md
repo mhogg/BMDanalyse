@@ -16,7 +16,7 @@ Written in pure Python using PyQt/PySide, pyqtgraph, numpy, matplotlib and PIL. 
 
 * Python 2.6, 2.7
 * PyQtGraph >= 0.9.7
-* PyQt4 >= 4.9.7 or PySide >= 1.1
+* PyQt >= 4.9.7 or PySide >= 1.1
 * numpy >= 1.4
 * matplotlib >= 1.0
 * Python Imaging Library (PIL) >= 1.1.6
