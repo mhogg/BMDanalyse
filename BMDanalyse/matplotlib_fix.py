@@ -7,7 +7,7 @@
 # Fix to ensure that the matplotlib legend updates whenever the user 
 # makes any change to the curves
 
-from matplotlib.backends.qt4_editor.figureoptions import *
+from matplotlib.backends.qt_editor.figureoptions import *
 
 def figure_edit(axes, parent=None):
     """Edit matplotlib figure options"""
