@@ -2,6 +2,9 @@
 
 **Graphical tool to analyse regional changes in a time series of 2D medical images**
 
+[![PyPi version](https://img.shields.io/pypi/v/bmdanalyse.svg)](https://pypi.python.org/pypi/bmdanalyse/)
+[![PyPi downloads](https://img.shields.io/pypi/dm/bmdanalyse.svg)](https://pypi.python.org/pypi/bmdanalyse/)
+
 Copyright 2013, Michael Hogg (michael.christopher.hogg@gmail.com)
 
 MIT license - See LICENSE.txt for details on usage and distribution
