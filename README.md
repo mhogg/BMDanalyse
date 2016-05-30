@@ -22,7 +22,7 @@ Written in pure Python using PyQt/PySide, pyqtgraph, numpy, matplotlib and PIL. 
 * PyQt >= 4.9.7 or PySide >= 1.1
 * numpy >= 1.4
 * matplotlib >= 1.0
-* Python Imaging Library (PIL) >= 1.1.7 OR Pillow >= 2.2.0
+* Pillow >= 2.2.0
 
 **NOTES:**
 
