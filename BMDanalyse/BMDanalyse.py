@@ -9,7 +9,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 from pyqtgraph.widgets.GraphicsLayoutWidget import GraphicsLayoutWidget
 import numpy as np
-import MatplotlibWidget
+from MatplotlibWidget import MatplotlibWidget
 #from pyqtgraph.widgets.MatplotlibWidget import MatplotlibWidget
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from PIL import Image
