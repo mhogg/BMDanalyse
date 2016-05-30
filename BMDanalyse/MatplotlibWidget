@@ -7,7 +7,7 @@
 # Fixes error in pyqtgraph when importing NavigationToolbar2QTAgg. This class is not available
 # in matplotlib any longer (since version?)
 
-from ..Qt import QtGui, QtCore, USE_PYSIDE
+from pyqtgraph.Qt import QtGui, QtCore, USE_PYSIDE
 import matplotlib
 
 if USE_PYSIDE: 
