@@ -61,6 +61,6 @@ How to use
         'pyqtgraph',        
         'matplotlib',
         'numpy',
-        'PIL',
+        'pillow',
         ],
 )
