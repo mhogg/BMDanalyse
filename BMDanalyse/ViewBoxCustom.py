@@ -427,14 +427,14 @@ class MultiRoiViewBox(pg.ViewBox):
     def updateView(self):
         self.background.setBrush(fn.mkBrush(self.viewMode.lut[0]))
         self.background.show()  
-        if    self.img==None: return
+        if    self.img is None: return
         else: self.img.setLookupTable(self.viewMode.lut)            
        
     def showImage(self,arr):
-        if arr==None: 
+        if arr is None: 
             self.img = None
             return
-        if self.img==None: 
+        if self.img is None: 
             self.img = pg.ImageItem(arr,autoRange=False,autoLevels=False)
             self.addItem(self.img)      
         self.img.setImage(arr,autoLevels=False)
