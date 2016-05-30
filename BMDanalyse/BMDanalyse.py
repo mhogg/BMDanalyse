@@ -268,7 +268,7 @@ class MainWindow(QtGui.QMainWindow):
         """ Remove image from sidePanel imageFileList """
         
         # Return if there is no image to remove
-        if self.vb.img==None: return
+        if self.vb.img is None: return
         
         # Get current image in sidePanel imageFileList and remove from list
         currentRow = self.sidePanel.imageFileList.currentRow()
@@ -313,7 +313,7 @@ class MainWindow(QtGui.QMainWindow):
         """
         
         # Return if there is no image or rois in view
-        if self.vb.img==None or len(self.vb.rois)==0: return               
+        if self.vb.img is None or len(self.vb.rois)==0: return               
         
         # Collect all images into a 3D array
         imageFilenames = self.sidePanel.getListOfImages()
@@ -340,7 +340,7 @@ class MainWindow(QtGui.QMainWindow):
             else: 
                 BMD[:,i] = BMD[:,i] / BMD[0,i] * 100.
         self.BMDchange = BMD-100.
-        if self.timeData==None or self.timeData.size!=numImages:
+        if self.timeData is None or self.timeData.size!=numImages:
             self.timeData = np.arange(numImages,dtype=float)
         
         # Plot results  
@@ -348,7 +348,7 @@ class MainWindow(QtGui.QMainWindow):
         
     def imageAnalysis(self):
         # Generate images of BMD change
-        if self.vb.img==None: return
+        if self.vb.img is None: return
         self.showImageWin()
         
     def sliderValueChanged(self,value):
