@@ -245,10 +245,12 @@ class MainWindow(QtGui.QMainWindow):
         if len(fileNames)>0:
             for fileName in fileNames:
                 if fileName!='':
-                    imgarr = np.array(Image.open(str(fileName)))
+                    img    = Image.open(str(fileName))
+                    imgarr = np.array(img.convert('L'))  # Convert to 8-bit
                     imgarr = imgarr.swapaxes(0,1)
-                    if   imgarr.ndim==2: imgarr = imgarr[:,::-1]
-                    elif imgarr.ndim==3: imgarr = imgarr[:,::-1,:]                   
+                    imgarr = imgarr[:,::-1]
+                    #if   imgarr.ndim==2: imgarr = imgarr[:,::-1]
+                    #elif imgarr.ndim==3: imgarr = imgarr[:,::-1,:]                   
                     newImages[fileName] = imgarr
             
             # Add filenames to list widget. Only add new filenames. If filename exists aready, then
@@ -355,6 +357,7 @@ class MainWindow(QtGui.QMainWindow):
         self.imageWin.sliderLabel.setText('BMD change: >= %d %s' % (value,'%'))
         self.setLookupTable(value)
         self.imageWin.vb.img2.setLookupTable(self.lut)
+        self.imageWin.vb.img2.setLevels([0,255])
         
     def setLookupTable(self,val):
         lut = []
