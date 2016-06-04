@@ -187,6 +187,9 @@ class MainWindow(QtGui.QMainWindow):
         self.sidePanel.buttRoiRem.clicked.connect(self.vb.removeROI)        
         self.sidePanel.buttRoiLoad.clicked.connect(self.vb.loadROI)
         self.sidePanel.buttRoiSave.clicked.connect(self.vb.saveROI)
+    
+        self.sidePanel.buttRoiAnalysis.clicked.connect(self.getBMD)
+        self.sidePanel.buttImgAnalysis.clicked.connect(self.imageAnalysis)
         
     def onAbout(self):
         """ About BMDanalyse message"""

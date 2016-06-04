@@ -19,10 +19,12 @@ class SidePanel(QtGui.QWidget):
 
         self.setupImageToolbox()
         self.setupRoiToolbox()
+        self.setupAnalysisToolbox()
 
         sidePanelLayout = QtGui.QVBoxLayout()
         sidePanelLayout.addWidget(self.imageToolbox)
-        sidePanelLayout.addWidget(self.roiToolbox)        
+        sidePanelLayout.addWidget(self.roiToolbox)
+        sidePanelLayout.addWidget(self.analysisToolbox)
         sidePanelLayout.setContentsMargins(0,0,0,0)
         self.setLayout(sidePanelLayout)
         
@@ -31,6 +33,7 @@ class SidePanel(QtGui.QWidget):
         # Image filelist
         imageFileListLabel = QtGui.QLabel("Image toolbox")
         self.imageFileList = QtGui.QListWidget() 
+        self.imageFileList.setToolTip("List of image files")
         
         # Image buttons
         self.buttImageAdd  = QtGui.QPushButton(self.icons['imageAddIcon'],"")
@@ -48,8 +51,10 @@ class SidePanel(QtGui.QWidget):
         self.imageFileTools  = QtGui.QFrame()
         imageFileToolsLayout = QtGui.QHBoxLayout() 
         self.imageFileTools.setLayout(imageFileToolsLayout) 
-        self.imageFileTools.setLineWidth(1)
-        self.imageFileTools.setFrameStyle(QtGui.QFrame.StyledPanel)            
+        #self.imageFileTools.setLineWidth(1)
+        #self.imageFileTools.setFrameStyle(QtGui.QFrame.StyledPanel)
+        self.imageFileTools.setContentsMargins(0,0,0,0)
+        imageFileToolsLayout.setContentsMargins(0,5,0,0)
         imageFileToolsLayout.addWidget(self.buttImageAdd)
         imageFileToolsLayout.addWidget(self.buttImageRem)        
         imageFileToolsLayout.addWidget(self.buttImageDown)
@@ -99,8 +104,10 @@ class SidePanel(QtGui.QWidget):
         self.roiButtonsFrame = QtGui.QFrame()
         roiButtonsLayout     = QtGui.QHBoxLayout()
         self.roiButtonsFrame.setLayout(roiButtonsLayout)
-        self.roiButtonsFrame.setLineWidth(1)
-        self.roiButtonsFrame.setFrameStyle(QtGui.QFrame.StyledPanel)
+        #self.roiButtonsFrame.setLineWidth(1)
+        #self.roiButtonsFrame.setFrameStyle(QtGui.QFrame.StyledPanel)
+        self.roiButtonsFrame.setContentsMargins(0,0,0,0)
+        roiButtonsLayout.setContentsMargins(0,5,0,0)
         roiButtonsLayout.addWidget(self.buttRoiAdd)
         roiButtonsLayout.addWidget(self.buttRoiLoad) 
         roiButtonsLayout.addWidget(self.buttRoiCopy)
@@ -115,6 +122,34 @@ class SidePanel(QtGui.QWidget):
         self.roiToolbox.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)  
         roiToolboxLayout.addWidget(roitoolboxLabel)
         roiToolboxLayout.addWidget(self.roiButtonsFrame)
+        
+    def setupAnalysisToolbox(self):
+        # Analysis buttons
+        analysistoolboxLabel = QtGui.QLabel("Analysis toolbox")
+        self.buttRoiAnalysis  = QtGui.QPushButton("ROI Analysis")
+        self.buttImgAnalysis  = QtGui.QPushButton("Image Analysis")
+        self.buttRoiAnalysis.setMinimumSize(self.buttMinimumSize)
+        self.buttImgAnalysis.setMinimumSize(self.buttMinimumSize)  
+        self.buttRoiAnalysis.setToolTip("Run ROI analysis")
+        self.buttImgAnalysis.setToolTip("Run Image analysis")
+
+        # Analysis Buttons Frame       
+        self.analysisButtonsFrame = QtGui.QFrame()
+        analysisButtonsLayout     = QtGui.QHBoxLayout()
+        self.analysisButtonsFrame.setLayout(analysisButtonsLayout)
+        self.analysisButtonsFrame.setContentsMargins(0,0,0,0)
+        analysisButtonsLayout.setContentsMargins(0,5,0,0)
+        analysisButtonsLayout.addWidget(self.buttRoiAnalysis)
+        analysisButtonsLayout.addWidget(self.buttImgAnalysis) 
+        
+        # Analysis Toolbox
+        self.analysisToolbox  = QtGui.QFrame()
+        analysisToolboxLayout = QtGui.QVBoxLayout()
+        self.analysisToolbox.setLayout(analysisToolboxLayout)
+        self.analysisToolbox.setLineWidth(2)
+        self.analysisToolbox.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)  
+        analysisToolboxLayout.addWidget(analysistoolboxLabel)
+        analysisToolboxLayout.addWidget(self.analysisButtonsFrame)
       
     def addImageToList(self,filename):
         self.imageFileList.addItem(filename) 
