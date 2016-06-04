@@ -7,8 +7,8 @@
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore,QtGui
 import numpy as np
-from ROI import ROI,RectROIcustom, PolyLineROIcustom
-from customItems import QActionCustom, QMenuCustom, ImageExporterCustom
+from ROI import RectROIcustom, PolyLineROIcustom
+from customItems import QMenuCustom, ImageExporterCustom
 import matplotlib
 import pickle
 import pyqtgraph.functions as fn
@@ -71,14 +71,13 @@ class MultiRoiViewBox(pg.ViewBox):
         
         self.rois = []
         self.currentROIindex = None
-        self.img      = None
-        self.menu     = None # Override pyqtgraph ViewBoxMenu 
-        self.menu     = self.getMenu(None)       
-        self.NORMAL   = ViewMode(0,matplotlib.cm.gray)  
-        self.DEXA     = ViewMode(1,matplotlib.cm.jet)
-        self.viewMode = self.NORMAL
+        self.img         = None    
+        self.NORMAL      = ViewMode(0,matplotlib.cm.gray)  
+        self.DEXA        = ViewMode(1,matplotlib.cm.jet)
+        self.viewMode    = self.NORMAL
         self.drawROImode = False
         self.drawingROI  = None
+        self.menu        = None
         
     def getContextMenus(self,ev):
         return None
@@ -98,7 +97,7 @@ class MultiRoiViewBox(pg.ViewBox):
             ev.accept()
             self.drawPolygonRoi(ev)            
         elif ev.button() == QtCore.Qt.RightButton and self.menuEnabled():
-            ev.accept()
+            ev.accept()        
             self.raiseContextMenu(ev) 
             
     def addPolyRoiRequest(self):
@@ -122,7 +121,6 @@ class MultiRoiViewBox(pg.ViewBox):
         self.sortROIs()  
         self.setCurrentROIindex(roi)  
         roi.translatable = True
-        #roi.setAcceptedMouseButtons(QtCore.Qt.LeftButton or QtCore.Qt.RightButton)        
         roi.setActive(True)      
         for seg in roi.segments:
             seg.setSelectable(True)
@@ -136,7 +134,7 @@ class MultiRoiViewBox(pg.ViewBox):
         roi.sigSaveRequested.connect(self.saveROI)            
 
     def drawPolygonRoi(self,ev):
-        "Function to draw a polygon ROI"
+        '''Function to draw a polygon ROI'''
         roi = self.drawingROI
         pos = self.mapSceneToView(ev.scenePos())
         
@@ -204,48 +202,38 @@ class MultiRoiViewBox(pg.ViewBox):
             for h in roi.handles:
                 h['item'].setSelectable(True)
             # Exit ROI drawing mode
-            self.endPolyRoiRequest()                
-                
-    def getMenu(self,event):
-        if self.menu is None:
-            self.menu          = QtGui.QMenu()
-            # Submenu to add ROIs
-            self.submenu       = QtGui.QMenu("Add ROI",self.menu)
-            #self.addROIRectAct = QActionCustom("Rectangular",  self.submenu)
-            self.addROIRectAct = QtGui.QAction("Rectangular",  self.submenu)
-            #self.addROIPolyAct = QActionCustom("Polygon",  self.submenu)
-            self.addROIPolyAct = QtGui.QAction("Polygon",  self.submenu)
-            #self.addROIRectAct.clickEvent.connect(self.addRoiRequest)
-            self.addROIRectAct.triggered.connect(self.addROI)
-            #self.addROIPolyAct.clickEvent.connect(self.addPolyRoiRequest)    
-            self.addROIPolyAct.triggered.connect(self.addPolyRoiRequest)    
-            self.submenu.addAction(self.addROIRectAct)
-            self.submenu.addAction(self.addROIPolyAct)
-        
-            #self.loadROIAct  = QActionCustom("Load ROI", self.menu)
-            self.loadROIAct  = QtGui.QAction("Load ROI", self.menu)
-            self.dexaMode    = QtGui.QAction("DEXA mode", self.menu)
-            self.viewAll     = QtGui.QAction("View All", self.menu)
-            self.exportImage = QtGui.QAction("Export image", self.menu)
+            self.endPolyRoiRequest()    
 
-            #self.loadROIAct.clickEvent.connect(self.loadROI)
-            self.loadROIAct.triggered[()].connect(self.loadROI)
-            self.dexaMode.toggled.connect(self.toggleViewMode)
-            self.viewAll.triggered[()].connect(self.autoRange)
-            self.exportImage.triggered[()].connect(self.export)
-            
-            self.menu.addAction(self.viewAll)
-            self.menu.addAction(self.dexaMode)
-            self.menu.addAction(self.exportImage)
-            self.menu.addSeparator()
-            self.menu.addMenu(self.submenu)
-            self.menu.addAction(self.loadROIAct)
-            self.dexaMode.setCheckable(True)      
-        # Update action event. This enables passing of the event to the fuction connected to the
-        # action i.e.  event will be passed to self.addRoiRequest when a Rectangular ROI is clicked
-        #self.addROIRectAct.updateEvent(event)
-        #self.addROIPolyAct.updateEvent(event)
-        return self.menu  
+    def getMenu(self,ev):  
+        
+        self.menu          = QtGui.QMenu()
+        self.submenu       = QtGui.QMenu("Add ROI", self.menu)
+        self.addROIRectAct = QtGui.QAction("Rectangular", self.submenu)
+        self.addROIPolyAct = QtGui.QAction("Polygon", self.submenu)
+        self.addROIRectAct.triggered[()].connect(lambda arg=ev: self.addRoiRequest(arg))
+        self.addROIPolyAct.triggered.connect(self.addPolyRoiRequest)    
+        self.submenu.addAction(self.addROIRectAct)
+        self.submenu.addAction(self.addROIPolyAct)
+    
+        self.loadROIAct  = QtGui.QAction("Load ROI", self.menu)
+        self.dexaMode    = QtGui.QAction("DEXA mode", self.menu)
+        self.viewAll     = QtGui.QAction("View All", self.menu)
+        self.exportImage = QtGui.QAction("Export image", self.menu)
+
+        self.loadROIAct.triggered[()].connect(self.loadROI)
+        self.dexaMode.toggled.connect(self.toggleViewMode)
+        self.viewAll.triggered[()].connect(self.autoRange)
+        self.exportImage.triggered[()].connect(self.export)
+        
+        self.menu.addAction(self.viewAll)
+        self.menu.addAction(self.dexaMode)
+        self.menu.addAction(self.exportImage)
+        self.menu.addSeparator()
+        self.menu.addMenu(self.submenu)
+        self.menu.addAction(self.loadROIAct)
+        self.dexaMode.setCheckable(True)
+        
+        return self.menu
         
     def setCurrentROIindex(self,roi=None):
         """ Use this function to change currentROIindex value to ensure a signal is emitted"""
@@ -276,11 +264,11 @@ class MultiRoiViewBox(pg.ViewBox):
             # If roi is already selected, then unselect
             else: 
                 self.setCurrentROIindex(None)
-        
+    
     def addRoiRequest(self,ev):
         """ Function to addROI at an event screen position """
         # Get position
-        pos  = self.mapSceneToView(ev.scenePos())        
+        pos  = self.mapSceneToView(ev.scenePos())
         xpos = pos.x()
         ypos = pos.y()
         # Shift down by size
@@ -426,7 +414,7 @@ class MultiRoiViewBox(pg.ViewBox):
 
     def updateView(self):
         self.background.setBrush(fn.mkBrush(self.viewMode.lut[0]))
-        self.background.show()  
+        self.background.show()
         if    self.img is None: return
         else: self.img.setLookupTable(self.viewMode.lut)            
        
