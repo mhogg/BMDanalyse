@@ -410,7 +410,7 @@ class MultiRoiViewBox(pg.ViewBox):
             self.removeItem(roi)  
             self.setCurrentROIindex(None) 
 
-    def toggleViewMode(self,isChecked):
+    def toggleViewMode(self):
         """ Toggles between NORMAL (Black/White) and DEXA mode (colour) """
         if self.viewMode == self.NORMAL:
             viewMode = self.DEXA
