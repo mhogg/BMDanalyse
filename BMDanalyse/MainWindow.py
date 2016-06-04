@@ -92,26 +92,28 @@ class MainWindow(QtGui.QMainWindow):
         # Menus 
         menubar          = self.menuBar()
         self.fileMenu    = menubar.addMenu('&File')
+        self.imageMenu   = menubar.addMenu('&Images')
         self.roiMenu     = menubar.addMenu('&ROIs')
         self.submenu     = self.roiMenu.addMenu(self.icons['roiAddIcon'],"Add ROI")
-        self.analyseMenu = menubar.addMenu('&Analyse')
+        self.analyseMenu = menubar.addMenu('&Analysis')
         self.aboutMenu   = menubar.addMenu('A&bout')
         
     def createActions(self):    
         # Actions for File menu
+        self.exitAct     = QtGui.QAction("&Quit", self, shortcut="Ctrl+Q",statusTip="Exit the application")
+        self.exitAct.triggered[()].connect(self.close)
+        self.fileMenu.addAction(self.exitAct)
+        # Actions for Images menu
         self.loadImageAct   = QtGui.QAction(self.icons['imageAddIcon'], "&Load image(s)",        self, shortcut="Ctrl+L")
-        self.removeImageAct = QtGui.QAction(self.icons['imageRemIcon'], "&Remove current image", self, shortcut="Ctrl+X") 
-        self.exitAct        = QtGui.QAction("&Quit", self, shortcut="Ctrl+Q",statusTip="Exit the application")
-        fileMenuActions  = [self.loadImageAct,self.removeImageAct,self.exitAct]
-        fileMenuActFuncs = [self.loadImages,self.removeImage,self.close]
-        for i in xrange(len(fileMenuActions)):
-            action   = fileMenuActions[i]
-            function = fileMenuActFuncs[i]
+        self.removeImageAct = QtGui.QAction(self.icons['imageRemIcon'], "&Remove current image", self, shortcut="Ctrl+X")  
+        imageMenuActions  = [self.loadImageAct,self.removeImageAct]
+        imageMenuActFuncs = [self.loadImages,self.removeImage]
+        for i in xrange(len(imageMenuActions)):
+            action   = imageMenuActions[i]
+            function = imageMenuActFuncs[i]
             action.triggered[()].connect(function)
-        self.fileMenu.addAction(self.loadImageAct)
-        self.fileMenu.addAction(self.removeImageAct)
-        self.fileMenu.addSeparator()
-        self.fileMenu.addAction(self.exitAct)        
+        self.imageMenu.addAction(self.loadImageAct)
+        self.imageMenu.addAction(self.removeImageAct)
         # Actions for ROI menu
         self.addROIRectAct = QtGui.QAction("Rectangular",self.submenu)
         self.addROIPolyAct = QtGui.QAction("Polygon",self.submenu)
