@@ -35,7 +35,6 @@ class SidePanel(QtGui.QWidget):
         imageFileListLabel.setContentsMargins(0,0,0,5)
         self.imageFileList = QtGui.QListWidget() 
         self.imageFileList.setToolTip("List of image files")
-        
         # Image buttons
         self.buttImageAdd  = QtGui.QPushButton(self.icons['imageAddIcon'],"")
         self.buttImageRem  = QtGui.QPushButton(self.icons['imageRemIcon'],"")
@@ -48,19 +47,15 @@ class SidePanel(QtGui.QWidget):
             image.setMinimumSize(self.buttMinimumSize)
             image.setIconSize(self.iconSize)
             image.setToolTip(imageToolTips[i])  
-
         self.imageFileTools  = QtGui.QFrame()
         imageFileToolsLayout = QtGui.QHBoxLayout() 
         self.imageFileTools.setLayout(imageFileToolsLayout) 
-        #self.imageFileTools.setLineWidth(1)
-        #self.imageFileTools.setFrameStyle(QtGui.QFrame.StyledPanel)
         self.imageFileTools.setContentsMargins(0,0,0,0)
         imageFileToolsLayout.setContentsMargins(0,5,0,0)
         imageFileToolsLayout.addWidget(self.buttImageAdd)
         imageFileToolsLayout.addWidget(self.buttImageRem)        
         imageFileToolsLayout.addWidget(self.buttImageDown)
         imageFileToolsLayout.addWidget(self.buttImageUp)
-
         # Image Toolbox (containing imageFileList + imageFileList buttons)
         self.imageToolbox = QtGui.QFrame()
         self.imageToolbox.setLineWidth(2)
@@ -81,7 +76,6 @@ class SidePanel(QtGui.QWidget):
         self.roiMenu.show()        
 
     def setupRoiToolbox(self):   
-
         # ROI buttons
         roitoolboxLabel = QtGui.QLabel("ROI toolbox")
         self.buttRoiAdd  = QtGui.QPushButton(self.icons['roiAddIcon'],"")
@@ -96,17 +90,13 @@ class SidePanel(QtGui.QWidget):
             button.setMinimumSize(self.buttMinimumSize)
             button.setIconSize(self.iconSize)
             button.setToolTip(roiToolTips[i])
-
         # Connect buttRoiAdd button to a popup menu to select roi type
         self.createRoiMenu()        
         self.buttRoiAdd.clicked.connect(self.showRoiMenu)      
-
         # ROI Buttons Frame       
         self.roiButtonsFrame = QtGui.QFrame()
         roiButtonsLayout     = QtGui.QHBoxLayout()
         self.roiButtonsFrame.setLayout(roiButtonsLayout)
-        #self.roiButtonsFrame.setLineWidth(1)
-        #self.roiButtonsFrame.setFrameStyle(QtGui.QFrame.StyledPanel)
         self.roiButtonsFrame.setContentsMargins(0,0,0,0)
         roiButtonsLayout.setContentsMargins(0,5,0,0)
         roiButtonsLayout.addWidget(self.buttRoiAdd)
@@ -114,7 +104,6 @@ class SidePanel(QtGui.QWidget):
         roiButtonsLayout.addWidget(self.buttRoiCopy)
         roiButtonsLayout.addWidget(self.buttRoiSave)
         roiButtonsLayout.addWidget(self.buttRoiRem)
-        
         # ROI Toolbox
         self.roiToolbox  = QtGui.QFrame()
         roiToolboxLayout = QtGui.QVBoxLayout()
@@ -133,7 +122,6 @@ class SidePanel(QtGui.QWidget):
         self.buttImgAnalysis.setMinimumSize(self.buttMinimumSize)  
         self.buttRoiAnalysis.setToolTip("Run ROI analysis")
         self.buttImgAnalysis.setToolTip("Run Image analysis")
-
         # Analysis Buttons Frame       
         self.analysisButtonsFrame = QtGui.QFrame()
         analysisButtonsLayout     = QtGui.QHBoxLayout()
@@ -142,7 +130,6 @@ class SidePanel(QtGui.QWidget):
         analysisButtonsLayout.setContentsMargins(0,5,0,0)
         analysisButtonsLayout.addWidget(self.buttRoiAnalysis)
         analysisButtonsLayout.addWidget(self.buttImgAnalysis) 
-        
         # Analysis Toolbox
         self.analysisToolbox  = QtGui.QFrame()
         analysisToolboxLayout = QtGui.QVBoxLayout()
@@ -170,7 +157,6 @@ class SidePanel(QtGui.QWidget):
             self.imageFileList.insertItem(currentRow+1,item.text())
             self.imageFileList.setCurrentRow(currentRow+1)
         # Show current item as selected
-        #self.imageFileList.setItemSelected(self.imageFileList.currentItem(),True)
         currentItem = self.imageFileList.currentItem()  
         if not currentItem is None: 
             currentItem.setSelected(True)
@@ -190,7 +176,6 @@ class SidePanel(QtGui.QWidget):
             self.imageFileList.insertItem(currentRow-1,item.text())
             self.imageFileList.setCurrentRow(currentRow-1)
         # Show current item as selected            
-        #self.imageFileList.setItemSelected(self.imageFileList.currentItem(),True)
         currentItem = self.imageFileList.currentItem() 
         if not currentItem is None: 
             currentItem.setSelected(True)
@@ -211,9 +196,7 @@ class SidePanel(QtGui.QWidget):
 class popupMenu(QtGui.QWidget):
 
     def __init__(self, parent = None, widget=None): 
-   
         QtGui.QWidget.__init__(self, parent)
-
         self.buttMinimumSize = QtCore.QSize(36,36)
         self.iconSize        = QtCore.QSize(28,28)
         icon1 = parent.icons['roiRectIcon']
@@ -226,7 +209,6 @@ class popupMenu(QtGui.QWidget):
         self.button2.setMinimumSize(self.buttMinimumSize)
         self.button1.setToolTip('Add rectangular ROI')            
         self.button2.setToolTip('Add polyline ROI')       
-
         # Set the layout
         layout = QtGui.QHBoxLayout(self)            
         layout.addWidget(self.button1)
@@ -236,13 +218,10 @@ class popupMenu(QtGui.QWidget):
         self.setLayout(layout)
         self.adjustSize()
         widget.setContentsMargins(0,0,0,0)
-
         # Tag this widget as a popup
         self.setWindowFlags(QtCore.Qt.Popup)
-
         # Handle to widget (Pushbutton in sidepanel)
         self.widget = widget
-            
         # Close popup if one of the buttons are pressed
         self.button1.clicked.connect(self.hide)
         self.button2.clicked.connect(self.hide)
