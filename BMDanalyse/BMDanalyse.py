@@ -187,12 +187,11 @@ class MainWindow(QtGui.QMainWindow):
         self.sidePanel.buttRoiRem.clicked.connect(self.vb.removeROI)        
         self.sidePanel.buttRoiLoad.clicked.connect(self.vb.loadROI)
         self.sidePanel.buttRoiSave.clicked.connect(self.vb.saveROI)
-        #self.vb.sigROIchanged.connect(self.updateROItools)
         
     def onAbout(self):
         """ About BMDanalyse message"""
         author  ='Michael Hogg'
-        date    ='2012 - 2013'        
+        date    ='2016'        
         version = self.__version__
             
         QtGui.QMessageBox.about(self, 'About BMDanalyse', 
@@ -216,21 +215,6 @@ class MainWindow(QtGui.QMainWindow):
             </tr>            
             </table></p>
             """ % (author,version,date))
-
-    def updateROItools(self,roi=None):
-        """ Update ROI info box in side panel """ 
-        if roi==None:
-            self.sidePanel.updateRoiInfoBox()
-        else:           
-            roiState    = roi.getState()
-            posx,posy   = roiState['pos']
-            sizex,sizey = roiState['size']
-            angle       = roiState['angle']
-            name  = roi.name
-            pos   = '(%.3f, %.3f)' % (posx,posy)
-            size  = '(%.3f, %.3f)' % (sizex,sizey)
-            angle = '%.3f' % angle
-            self.sidePanel.updateRoiInfoBox(name,pos,size,angle)  
     
     def loadImages(self):
         """ Load an image to be analysed """

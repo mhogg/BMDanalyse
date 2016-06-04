@@ -29,7 +29,7 @@ class SidePanel(QtGui.QWidget):
     def setupImageToolbox(self):
     
         # Image filelist
-        imageFileListLabel = QtGui.QLabel("Loaded images")
+        imageFileListLabel = QtGui.QLabel("Image toolbox")
         self.imageFileList = QtGui.QListWidget() 
         
         # Image buttons
@@ -77,6 +77,7 @@ class SidePanel(QtGui.QWidget):
     def setupRoiToolbox(self):   
 
         # ROI buttons
+        roitoolboxLabel = QtGui.QLabel("ROI toolbox")
         self.buttRoiAdd  = QtGui.QPushButton(self.icons['roiAddIcon'],"")
         self.buttRoiRem  = QtGui.QPushButton(self.icons['roiRemIcon'],"")
         self.buttRoiSave = QtGui.QPushButton(self.icons['roiSaveIcon'],"")
@@ -106,35 +107,14 @@ class SidePanel(QtGui.QWidget):
         roiButtonsLayout.addWidget(self.buttRoiSave)
         roiButtonsLayout.addWidget(self.buttRoiRem)
         
-        # ROI Info Box
-        self.roiInfoBox  = QtGui.QWidget()
-        roiInfoBoxLayout = QtGui.QGridLayout()
-        self.roiInfoBox.setLayout(roiInfoBoxLayout)
-        self.roiNameLabel  = QtGui.QLabel("ROI name")
-        self.roiNameValue  = QtGui.QLineEdit("")
-        self.roiPosLabel   = QtGui.QLabel("ROI position")
-        self.roiPosValue   = QtGui.QLineEdit("") 
-        self.roiSizeLabel  = QtGui.QLabel("ROI size")
-        self.roiSizeValue  = QtGui.QLineEdit("")  
-        self.roiAngleLabel = QtGui.QLabel("ROI angle")
-        self.roiAngleValue = QtGui.QLineEdit("")  
-        roiInfoBoxLayout.addWidget(self.roiNameLabel,  0, 0)
-        roiInfoBoxLayout.addWidget(self.roiNameValue,  0, 1)
-        roiInfoBoxLayout.addWidget(self.roiPosLabel,   1, 0)
-        roiInfoBoxLayout.addWidget(self.roiPosValue,   1, 1) 
-        roiInfoBoxLayout.addWidget(self.roiSizeLabel,  2, 0)
-        roiInfoBoxLayout.addWidget(self.roiSizeValue,  2, 1)    
-        roiInfoBoxLayout.addWidget(self.roiAngleLabel, 3, 0)
-        roiInfoBoxLayout.addWidget(self.roiAngleValue, 3, 1)           
-        
         # ROI Toolbox
         self.roiToolbox  = QtGui.QFrame()
         roiToolboxLayout = QtGui.QVBoxLayout()
         self.roiToolbox.setLayout(roiToolboxLayout)
         self.roiToolbox.setLineWidth(2)
-        self.roiToolbox.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)   
+        self.roiToolbox.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)  
+        roiToolboxLayout.addWidget(roitoolboxLabel)
         roiToolboxLayout.addWidget(self.roiButtonsFrame)
-        roiToolboxLayout.addWidget(self.roiInfoBox) 
       
     def addImageToList(self,filename):
         self.imageFileList.addItem(filename) 
