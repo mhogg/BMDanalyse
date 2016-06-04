@@ -32,6 +32,7 @@ class SidePanel(QtGui.QWidget):
     
         # Image filelist
         imageFileListLabel = QtGui.QLabel("Image toolbox")
+        imageFileListLabel.setContentsMargins(0,0,0,5)
         self.imageFileList = QtGui.QListWidget() 
         self.imageFileList.setToolTip("List of image files")
         
