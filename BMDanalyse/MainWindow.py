@@ -21,13 +21,11 @@ absDirPath = os.path.dirname(__file__)
 class MainWindow(QtGui.QMainWindow):
 
     def __init__(self, parent=None):
-    
         QtGui.QMainWindow.__init__(self, parent) 
         self.loadIcons()   
         self.setupUserInterface() 
         self.setupSignals()    
         self.__version__ = __version__
-        
         # Initialise variables
         self.imageFiles = {}
         self.timeData   = None
@@ -56,7 +54,6 @@ class MainWindow(QtGui.QMainWindow):
         
     def setupUserInterface(self):
         """ Initialise the User Interface """
-
         # Left frame
         leftFrame = QtGui.QFrame()
         leftFrameLayout = QtGui.QHBoxLayout() 
@@ -64,7 +61,6 @@ class MainWindow(QtGui.QMainWindow):
         leftFrame.setLineWidth(0)
         leftFrame.setFrameStyle(QtGui.QFrame.Panel)
         leftFrameLayout.setContentsMargins(0,0,5,0)
-
         # Left frame contents     
         self.viewMain = GraphicsLayoutWidget()  # A GraphicsLayout within a GraphicsView 
         leftFrameLayout.addWidget(self.viewMain)
@@ -72,10 +68,8 @@ class MainWindow(QtGui.QMainWindow):
         self.vb = MultiRoiViewBox(lockAspect=True,enableMenu=True)
         self.viewMain.addItem(self.vb)
         self.vb.disableAutoRange()
-    
         # Right frame
         self.sidePanel = SidePanel(self) 
-     
         # UI window (containing left and right frames)
         UIwindow         = QtGui.QWidget(self)
         UIwindowLayout   = QtGui.QHBoxLayout()
@@ -85,19 +79,16 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(UIwindow)
         UIwindowSplitter.addWidget(leftFrame)
         UIwindowSplitter.addWidget(self.sidePanel)  
- 
         # Application window
         self.setWindowTitle('BMDanalyse')
         self.setWindowIcon(self.icons['BMDanalyseIcon'])
         self.setMinimumSize(600,500)
         self.resize(self.minimumSize())
-       
         # Window menus       
         self.createMenus()     
         self.createActions() 
 
     def createMenus(self):
-        
         # Menus 
         menubar          = self.menuBar()
         self.fileMenu    = menubar.addMenu('&File')
@@ -107,7 +98,6 @@ class MainWindow(QtGui.QMainWindow):
         self.aboutMenu   = menubar.addMenu('A&bout')
         
     def createActions(self):    
-   
         # Actions for File menu
         self.loadImageAct   = QtGui.QAction(self.icons['imageAddIcon'], "&Load image(s)",        self, shortcut="Ctrl+L")
         self.removeImageAct = QtGui.QAction(self.icons['imageRemIcon'], "&Remove current image", self, shortcut="Ctrl+X") 
@@ -122,25 +112,17 @@ class MainWindow(QtGui.QMainWindow):
         self.fileMenu.addAction(self.removeImageAct)
         self.fileMenu.addSeparator()
         self.fileMenu.addAction(self.exitAct)        
-       
         # Actions for ROI menu
-        # Submenu to add ROIs
-     
         self.addROIRectAct = QtGui.QAction("Rectangular",self.submenu)
         self.addROIPolyAct = QtGui.QAction("Polygon",self.submenu)
-        
         self.addROIRectAct.triggered[()].connect(self.vb.addROI)
         self.addROIPolyAct.triggered[()].connect(self.vb.addPolyRoiRequest) 
-        
         self.submenu.addAction(self.addROIRectAct)
         self.submenu.addAction(self.addROIPolyAct)    
-
         self.addROIRectAct.setIcon(self.icons['roiRectIcon'])
         self.addROIPolyAct.setIcon(self.icons['roiPolyIcon'])
-      
         self.addROIRectAct.setShortcut("Ctrl+Shift+R")
         self.addROIPolyAct.setShortcut("Ctrl+Shift+P")  
-      
         self.loadRoiAct = QtGui.QAction(self.icons['roiLoadIcon'], "L&oad ROI",   self, shortcut="Ctrl+O")                          
         self.copyRoiAct = QtGui.QAction(self.icons['roiCopyIcon'], "&Copy ROI",   self, shortcut="Ctrl+C")     
         self.saveRoiAct = QtGui.QAction(self.icons['roiSaveIcon'], "&Save ROI",   self, shortcut="Ctrl+S") 
@@ -152,17 +134,14 @@ class MainWindow(QtGui.QMainWindow):
             function = roiMenuActFuncs[i]
             action.triggered[()].connect(function)
             self.roiMenu.addAction(action)
-             
         # Actions for Analyse menu
         self.roiAnalysisAct = QtGui.QAction("&ROI analysis", self.viewMain, shortcut="Ctrl+R",triggered=self.getBMD)
         self.imgAnalysisAct = QtGui.QAction("&Image analysis", self.viewMain, shortcut="Ctrl+I",triggered=self.imageAnalysis)
         self.analyseMenu.addAction(self.roiAnalysisAct) 
         self.analyseMenu.addAction(self.imgAnalysisAct)
-       
         # Actions for 
         self.aboutAct = QtGui.QAction("&About", self.viewMain, shortcut='F1', triggered=self.onAbout)
         self.aboutMenu.addAction(self.aboutAct)
-        
         
     def setupSignals(self):
         """ Setup signals """
@@ -215,57 +194,46 @@ class MainWindow(QtGui.QMainWindow):
         """ Load an image to be analysed """
         newImages = {}
         fileNames = QtGui.QFileDialog.getOpenFileNames(self, self.tr("Load images"),QtCore.QDir.currentPath())
-        
         # Fix for PySide. PySide doesn't support QStringList types. PyQt4 getOpenFileNames returns a QStringList, whereas PySide
         # returns a type (the first entry being the list of filenames).
         if isinstance(fileNames,types.TupleType): fileNames = fileNames[0]
         if hasattr(QtCore,'QStringList') and isinstance(fileNames, QtCore.QStringList): fileNames = [str(i) for i in fileNames]
-        
         if len(fileNames)>0:
             for fileName in fileNames:
                 if fileName!='':
                     img    = Image.open(str(fileName))
                     imgarr = np.array(img.convert('L'))  # Convert to 8-bit
                     imgarr = imgarr.swapaxes(0,1)
-                    imgarr = imgarr[:,::-1]
-                    #if   imgarr.ndim==2: imgarr = imgarr[:,::-1]
-                    #elif imgarr.ndim==3: imgarr = imgarr[:,::-1,:]                   
+                    imgarr = imgarr[:,::-1]                
                     newImages[fileName] = imgarr
-            
             # Add filenames to list widget. Only add new filenames. If filename exists aready, then
             # it will not be added, but data will be updated
             for fileName in sorted(newImages.keys()):
                 if not self.imageFiles.has_key(fileName):
                     self.sidePanel.addImageToList(fileName)
                 self.imageFiles[fileName] = newImages[fileName]
-            
             # Show image in Main window
             self.vb.enableAutoRange()
-            if self.sidePanel.imageFileList.currentRow()==-1: self.sidePanel.imageFileList.setCurrentRow(0)
+            if self.sidePanel.imageFileList.currentRow()==-1: 
+                self.sidePanel.imageFileList.setCurrentRow(0)
             self.showImage(str(self.sidePanel.imageFileList.currentItem().text()))
             self.vb.disableAutoRange()            
             
     def removeImage(self):
         """ Remove image from sidePanel imageFileList """
-        
         # Return if there is no image to remove
         if self.vb.img is None: return
-        
         # Get current image in sidePanel imageFileList and remove from list
         currentRow = self.sidePanel.imageFileList.currentRow()
         image      = self.sidePanel.imageFileList.takeItem(currentRow)
         imageName  = str(image.text())
-        
         # Delete key and value from dictionary 
         if imageName!='': del self.imageFiles[imageName]
-        #self.imageFiles.pop(imageName,None)
-        
         # Get image item in imageFileList to replace deleted image
         if self.sidePanel.imageFileList.count()==0:
             self.vb.enableAutoRange()
             self.vb.removeItem(self.vb.img)
             self.vb.showImage(None)
-            #self.vb.img = None
             self.vb.disableAutoRange()
         else: 
             currentRow = self.sidePanel.imageFileList.currentRow()
@@ -292,16 +260,13 @@ class MainWindow(QtGui.QMainWindow):
             setImage to change the image in the view. This requires that all
             images are the same size and in the same position.
         """
-        
         # Return if there is no image or rois in view
         if self.vb.img is None or len(self.vb.rois)==0: return               
-        
         # Collect all images into a 3D array
         imageFilenames = self.sidePanel.getListOfImages()
         images    = [self.imageFiles[str(name.text())] for name in imageFilenames]
-        imageData = np.dstack(images)
+        imageData = np.dstack(images) # Doesn't work correctly if images are not all the same shape
         numImages = len(images)           
-        
         # Get BMD across image stack for each ROI
         numROIs = len(self.vb.rois)
         BMD     = np.zeros((numImages,numROIs),dtype=float) 
@@ -312,7 +277,6 @@ class MainWindow(QtGui.QMainWindow):
             arrRegion   = roi.getArrayRegion(imageData,self.vb.img, axes=(0,1))
             avgROIvalue = arrRegion.mean(axis=0).mean(axis=0)
             BMD[:,i]    = avgROIvalue
-        
         # Calculate the BMD change (percentage of original)
         tol = 1.0e-06
         for i in xrange(numROIs):
@@ -323,7 +287,6 @@ class MainWindow(QtGui.QMainWindow):
         self.BMDchange = BMD-100.
         if self.timeData is None or self.timeData.size!=numImages:
             self.timeData = np.arange(numImages,dtype=float)
-        
         # Plot results  
         self.showResults()
         
@@ -351,19 +314,15 @@ class MainWindow(QtGui.QMainWindow):
         self.lut = np.array(lut,dtype=np.ubyte)
      
     def createImageWin(self):
-    
         self.buttMinimumSize = QtCore.QSize(70,36)
         self.iconSize = QtCore.QSize(24,24)
-        
         if self.imageWin==None:
-            
             self.imageWin = QtGui.QDialog(self, QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint |  \
                                           QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
             self.imageWin.setWindowTitle('BMDanalyse')
             self.imageWin.setWindowIcon(self.icons['BMDanalyseIcon'])
             self.imageWin.setMinimumSize(250,500)
             self.imageWin.resize(self.imageWin.minimumSize()) 
-            
             # Create viewBox  
             self.imageWin.glw = GraphicsLayoutWidget()  # A GraphicsLayout within a GraphicsView 
             self.imageWin.vb  = ImageAnalysisViewBox(lockAspect=True,enableMenu=True)
@@ -378,7 +337,6 @@ class MainWindow(QtGui.QMainWindow):
             lut = [ [ int(255*val) for val in matplotlib.cm.gray(i)[:3] ] for i in xrange(256) ]
             lut = np.array(lut,dtype=np.ubyte)         
             self.imageWin.vb.img1.setLookupTable(lut)
-            
             # Label to show index of current image label
             self.imageCurrCont = QtGui.QFrame()
             self.imageCurrCont.setLineWidth(2)
@@ -389,7 +347,6 @@ class MainWindow(QtGui.QMainWindow):
             imageCurrContLayout = QtGui.QHBoxLayout()
             imageCurrContLayout.addWidget(self.imageWin.currLabel)
             self.imageCurrCont.setLayout(imageCurrContLayout)  
-            
             # Create buttons to select images
             self.imageWin.buttCont = QtGui.QWidget()
             self.imageWin.buttPrev = QtGui.QPushButton(self.icons['imagePrevIcon'],"")
@@ -406,10 +363,8 @@ class MainWindow(QtGui.QMainWindow):
             self.imageWin.buttPrev.setIconSize(self.iconSize) 
             self.imageWin.buttNext.setIconSize(self.iconSize)
             self.buttLayout.setContentsMargins(0,5,0,5)
-            
             self.imageWin.buttPrev.clicked.connect(self.prevImage)
             self.imageWin.buttNext.clicked.connect(self.nextImage)
-            
             # Create slider    
             self.imageWin.sliderCon = QtGui.QWidget()
             self.imageWin.slider = QtGui.QSlider(self)
@@ -427,16 +382,13 @@ class MainWindow(QtGui.QMainWindow):
             self.sliderLayout.addStretch(1)
             self.imageWin.sliderCon.setLayout(self.sliderLayout)
             self.sliderLayout.setContentsMargins(0,0,0,5)
-            
             # Format image window
             self.imageWinLayout = QtGui.QVBoxLayout()
             self.imageWinLayout.addWidget(self.imageWin.glw)
             self.imageWinLayout.addWidget(self.imageWin.buttCont)
             self.imageWinLayout.addWidget(self.imageWin.sliderCon)
             self.imageWin.setLayout(self.imageWinLayout)
-            
             self.imageWin.imagesRGB = None
-            
         # Show
         self.imageWin.show()
         self.imageWin.slider.setValue(10)
@@ -444,7 +396,6 @@ class MainWindow(QtGui.QMainWindow):
         self.imageWinIndex = 0
         
     def prevImage(self):
-        #numImages = len(self.imageFiles)
         minIndex  = 0
         currIndex = self.imageWinIndex 
         prevIndex = currIndex - 1 
@@ -468,12 +419,10 @@ class MainWindow(QtGui.QMainWindow):
         
     def showImageWin(self):
         self.createImageWin()
-        #if self.imageWin.imagesRGB == None: self.imagesBMDpercentChange()
         self.imagesBMDpercentChange()
         self.updateImageWin()
 
     def imagesBMDpercentChange(self):
-        
         # Get image arrays and convert to an array of floats
         imageFilenames = self.sidePanel.getListOfImages()
         images         = [ self.imageFiles[str(name.text())] for name in imageFilenames ]
@@ -483,7 +432,6 @@ class MainWindow(QtGui.QMainWindow):
             image[np.where(image==0)] = 1
             image = image.astype(np.float)
             imagesConv.append(image)
-               
         # Calculate percentage change and set with limits -100% to +100%
         imagesPercCh = []
         imageInitial = imagesConv[0]
@@ -492,13 +440,11 @@ class MainWindow(QtGui.QMainWindow):
             imagePercCh[np.where(imagePercCh> 100.)] =  100.
             imagePercCh[np.where(imagePercCh<-100.)] = -100.
             imagesPercCh.append(imagePercCh)
-            
         numImages  = len(imagesPercCh)
         self.imageWin.imagesRGB = []    
         for i in xrange(numImages):
             image = imagesPercCh[i]
             sx,sy = image.shape 
-            #imageCh  = np.zeros((sx,sy),dtype=np.float)
             imageRGB = image*(255/200.)+(255/2.)
             self.imageWin.imagesRGB.append(imageRGB)
         
@@ -508,8 +454,7 @@ class MainWindow(QtGui.QMainWindow):
         # Fix for PyQt/PySide compatibility. PyQt returns a QString, whereas PySide returns a tuple (first entry is filename as string)        
         if isinstance(fileName,types.TupleType): fileName = fileName[0]
         if hasattr(QtCore,'QString') and isinstance(fileName, QtCore.QString): fileName = str(fileName)            
-        if not fileName=='':        
-        #if not fileName.isEmpty():               
+        if not fileName=='':                     
             textFile  = open(fileName,'w')
             numFrames, numROIs = self.BMDchange.shape    
             roiNames = self.roiNames
@@ -534,23 +479,19 @@ class MainWindow(QtGui.QMainWindow):
             self.plotWin.setWindowIcon(self.icons['BMDanalyseIcon'])
             self.plotWin.setMinimumSize(600,500)
             self.plotWin.resize(self.minimumSize()) 
-
             # Create Matplotlib widget
             self.mplw = MatplotlibWidget(size=(5,6))
             self.fig  = self.mplw.getFigure()
-        
             self.editDataButton  = QtGui.QPushButton('Edit plot')
             self.exportCSVButton = QtGui.QPushButton('Export data')
             self.mplw.toolbar.addWidget(self.editDataButton)
             self.mplw.toolbar.addWidget(self.exportCSVButton)
             self.editDataButton.clicked.connect(self.showEditBox)
             self.exportCSVButton.clicked.connect(self.BMDtoCSVfile)
-
             # Format plot window
             self.plotWinLayout = QtGui.QVBoxLayout()
             self.plotWinLayout.addWidget(self.mplw)
             self.plotWin.setLayout(self.plotWinLayout)
-        
         self.createFigure()
         self.plotWin.show()
         self.mplw.draw()
