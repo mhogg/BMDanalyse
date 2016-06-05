@@ -9,6 +9,10 @@ BMDanalyse 0.1.4, 2016-XX-XX
   NavigationToolbar2QTAgg no longer exists
 - Add Analysis toolbox to side panel
 - Restructed files. MainWindow and TableWidget classes moved to own modules
+- Added ROI selection management to MultiRoiViewBox class to handle case 
+  where ROIs are overlapping and the lower one could not be selected
+- Update BMDanalyse software requirements. No longer support Python 2.6, but
+  should still work.
 
 BMDanalyse 0.1.3, 2013-06-06
 ----------------------------
