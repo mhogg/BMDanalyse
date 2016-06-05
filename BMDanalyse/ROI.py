@@ -5,10 +5,11 @@
 # This file is part of BMDanalyse - See LICENSE.txt for information on usage and redistribution
 
 from pyqtgraph.Qt import QtCore, QtGui, USE_PYSIDE
-import pyqtgraph.graphicsItems.ROI as pgROI
-import pyqtgraph.functions as fn
+from matplotlib import path
 from pyqtgraph.Point import Point
 from customItems import QMenuCustom
+import pyqtgraph.graphicsItems.ROI as pgROI
+import pyqtgraph.functions as fn
 import numpy as np
 
 __all__ = ['ROI', 'Handle','PolylineSegment','RectROIcustom','PolyLineROIcustom']
@@ -331,7 +332,6 @@ class selectableROI(object):
 
 
 class PolyLineROIcustom(selectableROI,ROI):
-#class PolyLineROIcustom(selectableROI):
     
     sigRemoveRequested = QtCore.Signal(object)
     sigCopyRequested   = QtCore.Signal(object)
@@ -347,7 +347,7 @@ class PolyLineROIcustom(selectableROI,ROI):
         self.pen = self.penActive
         self.handlePen = self.penActive        
         self.createROI(handlePositions)
-        self.setActive(False)     
+        self.setActive(False) # Set to False for use with MultiRoiViewBox 
  
     def createROI(self,handlePositions):
         # Create ROI from handle positions. Used mainly for copy and save
@@ -371,12 +371,9 @@ class PolyLineROIcustom(selectableROI,ROI):
             h['item'].setAcceptedMouseButtons(h['item'].acceptedMouseButtons() | QtCore.Qt.LeftButton) ## have these handles take left clicks too, so that handles cannot be added on top of other handles   
     
     def setMouseHover(self, hover):
-        #self.counter += 1
-        #print 'setMouseHover ', self.counter, " ", hover
         ROI.setMouseHover(self, hover)
         for s in self.segments:
             s.setMouseHover(hover)
-        #    print s
         self.update()
                           
     def addHandle(self, info, index=None):
@@ -489,7 +486,17 @@ class PolyLineROIcustom(selectableROI,ROI):
         shape = [1] * data.ndim
         shape[axes[0]] = sliced.shape[axes[0]]
         shape[axes[1]] = sliced.shape[axes[1]]
-        return sliced * mask.reshape(shape)  
+        return sliced * mask.reshape(shape)
+        
+    def isUnderMouse(self,mousePos):
+        ''' Redefinitiion of QtGui.QGraphicsItem.isUnderMouse that checks if mouse coords 
+            are within the polygon, not just in the bounding box '''
+        if QtGui.QGraphicsItem.isUnderMouse(self):
+            mousePosition   = [mousePos.x(),mousePos.y()]
+            handlePositions = [[pos.x(),pos.y()] for name,pos in self.getSceneHandlePositions()]
+            p = path.Path(handlePositions)
+            return p.contains_point(mousePosition)
+        return False
 
 def imageToArray(img):
     """
@@ -530,6 +537,7 @@ class RectROIcustom(selectableROI,ROI):
         self.addRotateHandle([0.0,1.0], [1.0, 0.0]) 
         self.addRotateHandle([1.0,0.0], [0.0, 1.0])
         self.addRotateHandle([1.0,1.0], [0.0, 0.0]) 
+        self.setActive(False) # Set to False for use with MultiRoiViewBox
  
     def setSelected(self, s):
         QtGui.QGraphicsItem.setSelected(self, s)
@@ -550,6 +558,10 @@ class RectROIcustom(selectableROI,ROI):
                 h['item'].currentPen = self.penInactive 
                 h['item'].pen = h['item'].currentPen               
                 h['item'].hide()
-                h['item'].update()             
+                h['item'].update()   
                 
-           
+    def isUnderMouse(self,pos=None):
+        ''' Redefinitiion of QtGui.QGraphicsItem.isUnderMouse. Required to be consistent
+            with PolyLineROIcustom '''
+        return QtGui.QGraphicsItem.isUnderMouse(self)           
+        

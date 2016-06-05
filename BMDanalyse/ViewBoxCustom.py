@@ -67,8 +67,6 @@ class MultiRoiViewBox(pg.ViewBox):
     
     ''' Custom Viewbox for multiple ROIs '''
 
-    sigROIchanged = QtCore.Signal(object)
-
     def __init__(self,parent=None,border=None,lockAspect=False,enableMouse=True,invertY=False,enableMenu=True,name=None):
         pg.ViewBox.__init__(self,parent,border,lockAspect,enableMouse,invertY,enableMenu,name)
         # Set default values
@@ -97,13 +95,34 @@ class MultiRoiViewBox(pg.ViewBox):
         self.exp = ImageExporterCustom(self)
         self.exp.export()
         
+    def raiseRoiSelectMenu(self,ev,roiList):
+        self.roimenu = QtGui.QMenu()
+        for roi in roiList:
+            action = QtGui.QAction(roi.name, self.roimenu)
+            action.triggered[()].connect(lambda arg=roi: self.selectROI(arg))     
+            self.roimenu.addAction(action)
+        pos = ev.screenPos()
+        self.roimenu.popup(QtCore.QPoint(pos.x(), pos.y()))
+        
     def mouseClickEvent(self, ev):
-        ''' Mouse click event handler '''
-        # Mode for drawing Polygon ROI
+        ''' Mouse click event handler '''        
+        # Drawing mode (all buttons)        
         if self.drawROImode:
             ev.accept()
             self.drawPolygonRoi(ev)
-        # Context menu
+        # Management of ROI selection (left mouse button)
+        elif ev.button() == QtCore.Qt.LeftButton:       
+            roisUnderMouse = []
+            pos = ev.scenePos()
+            for roi in self.rois:
+                if roi.isUnderMouse(pos):
+                    roisUnderMouse.append(roi)
+            numRois = len(roisUnderMouse) 
+            if numRois==1:
+                self.selectROI(roisUnderMouse[0])
+            elif numRois>1:
+                self.raiseRoiSelectMenu(ev,roisUnderMouse)
+        # Context menu (right mouse button)
         elif ev.button() == QtCore.Qt.RightButton and self.menuEnabled():
             ev.accept()
             self.raiseContextMenu(ev)
@@ -111,17 +130,12 @@ class MultiRoiViewBox(pg.ViewBox):
     def addPolyRoiRequest(self):
         ''' Function to add a Polygon ROI '''
         self.drawROImode = True
-        # Set other rois in inactive, so they can't be clicked during drawing
-        for roi in self.rois:
-           roi.setActive(False)
 
     def endPolyRoiRequest(self):
         ''' Called at the completion of drawing Polygon ROI '''
         self.drawROImode = False  # Deactivate drawing mode
         self.drawingROI  = None   # No roi being drawn, so set to None
-        for r in self.rois:
-            r.setActive(True)
-            
+         
     def addPolyLineROI(self,handlePositions):
         ''' Add Polygon ROI - Used for copy and load operations '''
         roi = PolyLineROIcustom(handlePositions=handlePositions,removable=True)
@@ -132,14 +146,11 @@ class MultiRoiViewBox(pg.ViewBox):
         self.sortROIs()  
         self.setCurrentROIindex(roi)  
         roi.translatable = True
-        roi.setActive(True)      
         for seg in roi.segments:
             seg.setSelectable(True)
         for h in roi.handles:
             h['item'].setSelectable(True)
         # Setup signals
-        roi.sigClicked.connect(self.selectROI)
-        roi.sigRegionChanged.connect(self.roiChanged)
         roi.sigRemoveRequested.connect(self.removeROI)
         roi.sigCopyRequested.connect(self.copyROI)
         roi.sigSaveRequested.connect(self.saveROI)            
@@ -200,8 +211,6 @@ class MultiRoiViewBox(pg.ViewBox):
             # Add segment to close ROI
             roi.addSegment(roi.handles[-1]['item'],roi.handles[0]['item'])
             # Setup signals on completed roi
-            roi.sigClicked.connect(self.selectROI)
-            roi.sigRegionChanged.connect(self.roiChanged)
             roi.sigRemoveRequested.connect(self.removeROI)
             roi.sigCopyRequested.connect(self.copyROI)
             roi.sigSaveRequested.connect(self.saveROI)
@@ -251,10 +260,6 @@ class MultiRoiViewBox(pg.ViewBox):
         ''' Use this function to change currentROIindex value to ensure a signal is emitted '''
         if roi==None: self.currentROIindex = None
         else:         self.currentROIindex = self.rois.index(roi)
-        self.sigROIchanged.emit(roi)  
-
-    def roiChanged(self,roi):
-        self.sigROIchanged.emit(roi) 
 
     def getCurrentROIindex(self):
         return self.currentROIindex    
@@ -310,8 +315,6 @@ class MultiRoiViewBox(pg.ViewBox):
         roi = RectROIcustom(pos,size,angle,removable=True,pen=(255,0,0))
         # Setup signals
         roi.setName('ROI-%i'% self.getROIid()) 
-        roi.sigClicked.connect(self.selectROI)
-        roi.sigRegionChanged.connect(self.roiChanged)
         roi.sigRemoveRequested.connect(self.removeROI)
         roi.sigCopyRequested.connect(self.copyROI)
         roi.sigSaveRequested.connect(self.saveROI)
