@@ -232,22 +232,13 @@ class selectableROI(object):
         self.sigSaveRequested.emit(self)  
         
     def hoverEvent(self, ev):
-        hover = False
-        if not ev.isExit():
-            if self.translatable and ev.acceptDrags(QtCore.Qt.LeftButton):
-                hover=True
-            for btn in [QtCore.Qt.LeftButton, QtCore.Qt.RightButton, QtCore.Qt.MidButton]:
-                if int(self.acceptedMouseButtons() & btn) > 0 and ev.acceptClicks(btn):
-                    hover=True                
-            if self.contextMenuEnabled():
-                ev.acceptClicks(QtCore.Qt.RightButton)
-        
-        if hover:
+        ''' Redefine hoverEvent
+            Partly to ensure that roi does not accept any mouse clicks '''
+        if (self.translatable) and (not ev.isExit()) and ev.acceptDrags(QtCore.Qt.LeftButton):
             self.setMouseHover(True)
             self.sigHoverEvent.emit(self)
-            ev.acceptClicks(QtCore.Qt.RightButton)
         else:
-            self.setMouseHover(False)         
+            self.setMouseHover(False)             
         
     def mouseDragEvent(self, ev):
         if ev.isStart():  
@@ -289,8 +280,6 @@ class selectableROI(object):
         return (self.removable and self.isActive)
     
     def raiseContextMenu(self, ev):
-        if not self.contextMenuEnabled():
-            return
         menu = self.getMenu()
         pos  = ev.screenPos()
         menu.popup(QtCore.QPoint(pos.x(), pos.y()))
@@ -497,7 +486,7 @@ class PolyLineROIcustom(selectableROI,ROI):
             p = path.Path(handlePositions)
             return p.contains_point(mousePosition)
         return False
-
+            
 def imageToArray(img):
     """
     Replaces imageToArray in pyqtgraph functions.py. Due to errors in Python 2.6

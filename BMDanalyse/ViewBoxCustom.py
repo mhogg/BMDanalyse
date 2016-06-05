@@ -5,14 +5,15 @@
 # This file is part of BMDanalyse - See LICENSE.txt for information on usage and redistribution
 
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore,QtGui
 import numpy as np
-from ROI import RectROIcustom, PolyLineROIcustom
-from customItems import QMenuCustom, ImageExporterCustom
 import matplotlib
 import pickle
 import pyqtgraph.functions as fn
 import types
+from pyqtgraph.Qt import QtCore, QtGui
+from ROI import RectROIcustom, PolyLineROIcustom
+from customItems import QMenuCustom, ImageExporterCustom
+from functools import partial
 
 __all__=['ImageAnalysisViewBox','ViewMode','MultiRoiViewBox']
 
@@ -95,7 +96,8 @@ class MultiRoiViewBox(pg.ViewBox):
         self.exp = ImageExporterCustom(self)
         self.exp.export()
         
-    def raiseRoiSelectMenu(self,ev,roiList):
+    def raiseRoiSelectMenuLeft(self,ev,roiList):
+        ''' Raise roi menu on left mouse click '''        
         self.roimenu = QtGui.QMenu()
         for roi in roiList:
             action = QtGui.QAction(roi.name, self.roimenu)
@@ -104,29 +106,48 @@ class MultiRoiViewBox(pg.ViewBox):
         pos = ev.screenPos()
         self.roimenu.popup(QtCore.QPoint(pos.x(), pos.y()))
         
+    def raiseRoiSelectMenuRight(self,ev,roiList):
+        ''' Raise roi menu on right mouse click 
+            Must use functools.partial (not lamda) here to get signals to work here '''
+        self.roimenu = QtGui.QMenu()
+        for roi in roiList:
+            action = QtGui.QAction(roi.name, self.roimenu)
+            action.triggered[()].connect(partial(roi.raiseContextMenu, ev))
+            self.roimenu.addAction(action)
+        pos = ev.screenPos()
+        self.roimenu.popup(QtCore.QPoint(pos.x(), pos.y()))
+            
     def mouseClickEvent(self, ev):
         ''' Mouse click event handler '''        
+        # Check if click is over any rois
+        roisUnderMouse = []
+        pos = ev.scenePos()
+        for roi in self.rois:
+            if roi.isUnderMouse(pos):
+                roisUnderMouse.append(roi)
+        numRois = len(roisUnderMouse)
         # Drawing mode (all buttons)        
         if self.drawROImode:
             ev.accept()
             self.drawPolygonRoi(ev)
-        # Management of ROI selection (left mouse button)
-        elif ev.button() == QtCore.Qt.LeftButton:       
-            roisUnderMouse = []
-            pos = ev.scenePos()
-            for roi in self.rois:
-                if roi.isUnderMouse(pos):
-                    roisUnderMouse.append(roi)
-            numRois = len(roisUnderMouse) 
-            if numRois==1:
-                self.selectROI(roisUnderMouse[0])
-            elif numRois>1:
-                self.raiseRoiSelectMenu(ev,roisUnderMouse)
-        # Context menu (right mouse button)
-        elif ev.button() == QtCore.Qt.RightButton and self.menuEnabled():
-            ev.accept()
-            self.raiseContextMenu(ev)
-            
+        # Click not over any rois
+        elif numRois==0:
+            # Context menu (right mouse button)
+            if ev.button() == QtCore.Qt.RightButton and self.menuEnabled():
+                self.raiseContextMenu(ev)         
+        # Click over any rois      
+        else:
+            if ev.button() == QtCore.Qt.LeftButton:       
+                if numRois==1:
+                    self.selectROI(roisUnderMouse[0])
+                elif numRois>1:
+                    self.raiseRoiSelectMenuLeft(ev,roisUnderMouse)
+            elif ev.button() == QtCore.Qt.RightButton: 
+                if numRois==1:
+                    roisUnderMouse[0].raiseContextMenu(ev)
+                elif numRois>1:
+                    self.raiseRoiSelectMenuRight(ev,roisUnderMouse)            
+           
     def addPolyRoiRequest(self):
         ''' Function to add a Polygon ROI '''
         self.drawROImode = True
@@ -345,8 +366,9 @@ class MultiRoiViewBox(pg.ViewBox):
                 nid+=1
         return nid
         
-    def copyROI(self,osFract = 0.05):
+    def copyROI(self):
         ''' Copy current ROI. Offset from original for visibility '''
+        osFract = 0.05
         if self.currentROIindex!=None:
             roi     = self.rois[self.currentROIindex]
             # For rectangular ROI, offset by a fraction of the rotated size
