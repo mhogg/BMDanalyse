@@ -18,10 +18,10 @@ __all__=['ImageAnalysisViewBox','ViewMode','MultiRoiViewBox']
 
 class ImageAnalysisViewBox(pg.ViewBox):
 
-    """
+    '''
     Custom ViewBox used to over-ride the context menu. I don't want the full context menu, 
     just a view all and an export. Export does not call a dialog, just prompts user for filename.
-    """
+    '''
 
     def __init__(self,parent=None,border=None,lockAspect=False,enableMouse=True,invertY=False,enableMenu=True,name=None):
         pg.ViewBox.__init__(self,parent,border,lockAspect,enableMouse,invertY,enableMenu,name)
@@ -52,6 +52,7 @@ class ImageAnalysisViewBox(pg.ViewBox):
  
  
 class ViewMode():
+    ''' Helper class for different colour displays of images in MultiRoiViewBox class '''
     def __init__(self,id,cmap):
         self.id   = id
         self.cmap = cmap
@@ -63,6 +64,8 @@ class ViewMode():
 
 
 class MultiRoiViewBox(pg.ViewBox):
+    
+    ''' Custom Viewbox for multiple ROIs '''
 
     sigROIchanged = QtCore.Signal(object)
 
@@ -83,43 +86,44 @@ class MultiRoiViewBox(pg.ViewBox):
         return None
         
     def raiseContextMenu(self, ev):
-        '''Display context menu at location of right mouse click'''
+        ''' Display context menu at location of right mouse click '''
         if not self.menuEnabled(): return
         menu = self.getMenu(ev)
         pos  = ev.screenPos()
         menu.popup(QtCore.QPoint(pos.x(), pos.y()))
         
     def export(self):
-        '''Export viewbox image'''
+        ''' Export viewbox image '''
         self.exp = ImageExporterCustom(self)
         self.exp.export()
         
     def mouseClickEvent(self, ev):
-        '''Mouse click event handler'''
+        ''' Mouse click event handler '''
         # Mode for drawing Polygon ROI
         if self.drawROImode:
             ev.accept()
             self.drawPolygonRoi(ev)
         # Context menu
         elif ev.button() == QtCore.Qt.RightButton and self.menuEnabled():
-            ev.accept()        
-            self.raiseContextMenu(ev) 
+            ev.accept()
+            self.raiseContextMenu(ev)
             
     def addPolyRoiRequest(self):
-        '''Function to add a Polygon ROI'''
+        ''' Function to add a Polygon ROI '''
         self.drawROImode = True
-        for roi in self.rois:        
-           roi.setActive(False)           
+        # Set other rois in inactive, so they can't be clicked during drawing
+        for roi in self.rois:
+           roi.setActive(False)
 
     def endPolyRoiRequest(self):
-        '''Called at the completion of drawing Polygon ROI'''
+        ''' Called at the completion of drawing Polygon ROI '''
         self.drawROImode = False  # Deactivate drawing mode
         self.drawingROI  = None   # No roi being drawn, so set to None
         for r in self.rois:
             r.setActive(True)
             
     def addPolyLineROI(self,handlePositions):
-        '''Draw Polygon ROI using mouse clicks'''
+        ''' Add Polygon ROI - Used for copy and load operations '''
         roi = PolyLineROIcustom(handlePositions=handlePositions,removable=True)
         roi.setName('ROI-%i'% self.getROIid())
         self.addItem(roi)                      # Add roi to viewbox
@@ -141,31 +145,31 @@ class MultiRoiViewBox(pg.ViewBox):
         roi.sigSaveRequested.connect(self.saveROI)            
 
     def drawPolygonRoi(self,ev):
-        '''Function to draw a Polygon ROI'''
+        ''' Function to draw a Polygon ROI - Called directly by MouseClickEvent '''
         roi = self.drawingROI
         pos = self.mapSceneToView(ev.scenePos())
-        
+        # TO DRAW ROI
         if ev.button() == QtCore.Qt.LeftButton:
-            if roi is None:            
-                roi = PolyLineROIcustom(removable = False)
-                roi.setName('ROI-%i'% self.getROIid()) # Do this before self.selectROIs(roi)
-                self.drawingROI = roi                  
-                self.addItem(roi)                      # Add roi to viewbox
-                self.rois.append(roi)                  # Add to list of rois
-                self.selectROI(roi)
-                self.sortROIs()  
-                self.setCurrentROIindex(roi)                
-                roi.translatable = False 
+            if roi is None:                                  # To start drawing a new roi
+                roi = PolyLineROIcustom(removable = False)   # Create new roi
+                roi.setName('ROI-%i'% self.getROIid())       # Set name. Do this before self.selectROIs(roi)
+                self.drawingROI = roi                      
+                self.addItem(roi)                            # Add roi to viewbox
+                self.rois.append(roi)                        # Add to list of rois
+                self.selectROI(roi)                          # Make selected
+                self.sortROIs()                              # Sort list of rois
+                self.setCurrentROIindex(roi)                 # Make current 
+                roi.translatable = False                     # Deactivate translation during drawing
+                roi.addFreeHandle(pos)                       # Add two handles on first click (1 fixed, 1 draggable)
                 roi.addFreeHandle(pos)
-                roi.addFreeHandle(pos)
-                h = roi.handles[-1]['item']
-                h.scene().sigMouseMoved.connect(h.movePoint)
-            else:
-                h = roi.handles[-1]['item']
-                h.scene().sigMouseMoved.disconnect()           
-                roi.addFreeHandle(pos)
-                h = roi.handles[-1]['item']
-                h.scene().sigMouseMoved.connect(h.movePoint)                
+                h = roi.handles[-1]['item']                  # Get draggable handle
+                h.scene().sigMouseMoved.connect(h.movePoint) # Connect signal to move handle with mouse
+            else:                                            # To continue drawing an existing roi
+                h = roi.handles[-1]['item']                  # Get last handle
+                h.scene().sigMouseMoved.disconnect()         # Make last handle non-draggable  
+                roi.addFreeHandle(pos)                       # Add new handle
+                h = roi.handles[-1]['item']                  # Get new handle
+                h.scene().sigMouseMoved.connect(h.movePoint) # Make new handle draggable  
             # Add a segment between the handles
             roi.addSegment(roi.handles[-2]['item'],roi.handles[-1]['item'])
             # Set segment and handles to non-selectable
@@ -173,7 +177,7 @@ class MultiRoiViewBox(pg.ViewBox):
             seg.setSelectable(False)
             for h in seg.handles:
                 h['item'].setSelectable(False)
-                
+        # TO STOP DRAWING ROI
         elif (ev.button() == QtCore.Qt.MiddleButton) or \
              (ev.button() == QtCore.Qt.RightButton and (roi==None or len(roi.segments)<3)):
             if roi!=None:
@@ -187,7 +191,7 @@ class MultiRoiViewBox(pg.ViewBox):
                 self.setCurrentROIindex(None)
             # Exit ROI drawing mode
             self.endPolyRoiRequest()
-
+        # TO COMPLETE ROI
         elif ev.button() == QtCore.Qt.RightButton:
             # Remove last handle
             h = roi.handles[-1]['item']
@@ -195,14 +199,14 @@ class MultiRoiViewBox(pg.ViewBox):
             roi.removeHandle(h)
             # Add segment to close ROI
             roi.addSegment(roi.handles[-1]['item'],roi.handles[0]['item'])
-            # Setup signals
+            # Setup signals on completed roi
             roi.sigClicked.connect(self.selectROI)
             roi.sigRegionChanged.connect(self.roiChanged)
             roi.sigRemoveRequested.connect(self.removeROI)
             roi.sigCopyRequested.connect(self.copyROI)
             roi.sigSaveRequested.connect(self.saveROI)
             # Re-activate mouse clicks for all roi, segments and handles
-            roi.removable   = True
+            roi.removable    = True
             roi.translatable = True  
             for seg in roi.segments:
                 seg.setSelectable(True)
@@ -244,7 +248,7 @@ class MultiRoiViewBox(pg.ViewBox):
         return self.menu
         
     def setCurrentROIindex(self,roi=None):
-        """ Use this function to change currentROIindex value to ensure a signal is emitted"""
+        ''' Use this function to change currentROIindex value to ensure a signal is emitted '''
         if roi==None: self.currentROIindex = None
         else:         self.currentROIindex = self.rois.index(roi)
         self.sigROIchanged.emit(roi)  
@@ -274,7 +278,7 @@ class MultiRoiViewBox(pg.ViewBox):
                 self.setCurrentROIindex(None)
     
     def addRoiRequest(self,ev):
-        '''Function to addROI at an event screen position'''
+        ''' Function to addROI at an event screen position '''
         # Get position
         pos  = self.mapSceneToView(ev.scenePos())
         xpos = pos.x()
@@ -319,7 +323,7 @@ class MultiRoiViewBox(pg.ViewBox):
         self.setCurrentROIindex(roi)
 
     def sortROIs(self):
-        """ Sort self.rois by roi name and adjust self.currentROIindex as necessary """
+        ''' Sort self.rois by roi name and adjust self.currentROIindex as necessary '''
         if len(self.rois)==0: return 
         if self.currentROIindex==None:
             self.rois.sort()  
@@ -329,7 +333,7 @@ class MultiRoiViewBox(pg.ViewBox):
             self.currentROIindex = self.rois.index(roiCurrent)
     
     def getROIid(self):
-        """ Get available and unique number for ROI name """
+        ''' Get available and unique number for ROI name '''
         nums = [ int(roi.name.split('-')[-1]) for roi in self.rois if roi.name!=None ]
         nid  = 1
         if len(nums)>0: 
@@ -338,10 +342,9 @@ class MultiRoiViewBox(pg.ViewBox):
                 nid+=1
         return nid
         
-    def copyROI(self,offset=0.0):
-        """ Copy current ROI. Offset from original for visibility """
+    def copyROI(self,osFract = 0.05):
+        ''' Copy current ROI. Offset from original for visibility '''
         if self.currentROIindex!=None:
-            osFract = 0.05              
             roi     = self.rois[self.currentROIindex]
             # For rectangular ROI, offset by a fraction of the rotated size
             if type(roi)==RectROIcustom: 
@@ -368,7 +371,7 @@ class MultiRoiViewBox(pg.ViewBox):
                 self.addPolyLineROI(hpsOffset)
      
     def saveROI(self):
-        """ Save the highlighted ROI to file """    
+        ''' Save the highlighted ROI to file '''   
         if self.currentROIindex!=None:
             roi = self.rois[self.currentROIindex]
             fileName = QtGui.QFileDialog.getSaveFileName(None,self.tr("Save ROI"),QtCore.QDir.currentPath(),self.tr("ROI (*.roi)"))
@@ -388,7 +391,7 @@ class MultiRoiViewBox(pg.ViewBox):
                 pickle.dump( roiState, open( fileName, "wb" ) )
                           
     def loadROI(self):
-        """ Load a previously saved ROI from file """
+        ''' Load a previously saved ROI from file '''
         fileNames = QtGui.QFileDialog.getOpenFileNames(None,self.tr("Load ROI"),QtCore.QDir.currentPath(),self.tr("ROI (*.roi)"))
         # Fix for PyQt/PySide compatibility. PyQt returns a QString, whereas PySide returns a tuple (first entry is filename as string)        
         if isinstance(fileNames,types.TupleType): fileNames = fileNames[0]
@@ -403,7 +406,7 @@ class MultiRoiViewBox(pg.ViewBox):
                         self.addPolyLineROI(roiState['handlePositions'])
             
     def removeROI(self):
-        """ Delete the highlighted ROI """
+        ''' Delete the highlighted ROI '''
         if self.currentROIindex!=None:
             roi = self.rois[self.currentROIindex]
             self.rois.pop(self.currentROIindex)
@@ -411,7 +414,7 @@ class MultiRoiViewBox(pg.ViewBox):
             self.setCurrentROIindex(None) 
 
     def toggleViewMode(self):
-        """ Toggles between NORMAL (Black/White) and DEXA mode (colour) """
+        ''' Toggles between NORMAL (Black/White) and DEXA mode (colour) '''
         if self.viewMode == self.NORMAL:
             viewMode = self.DEXA
         else:
