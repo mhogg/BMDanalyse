@@ -1,11 +1,15 @@
-
-#from ez_setup import use_setuptools
-#use_setuptools()
-#import setuptools
-from distribute_setup import use_setuptools
-use_setuptools()
-
 from setuptools import setup
+from codecs import open
+from os import path
+
+# get current path
+here = path.abspath(path.dirname(__file__))
+
+# function to open the readme file
+def readme():
+    with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+        return f.read()
+
 import BMDanalyse
 
 setup(
@@ -25,10 +29,10 @@ setup(
                                    'sampleMedicalImages/No implant/XYplane/*',
                                    'sampleMedicalImages/No implant/YZplane/*']},
     entry_points = { 'console_scripts': ['BMDanalyse = BMDanalyse.BMDanalyse:run',]},
+    install_requires = ['pyqtgraph','matplotlib','numpy','pillow',],
     classifiers = [
         "Programming Language :: Python",                                  
-        "Programming Language :: Python :: 2", 
-        "Programming Language :: Python :: 2.6",    
+        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",                                                    
         "Development Status :: 4 - Beta",                                  
         "Environment :: Other Environment", 
@@ -56,11 +60,4 @@ How to use
  - Create some Regions of Interest (ROIs) and run the ROI analysis tool from the Analyse option on the main toolbar
  - Run the Image analysis tool from the Analyse option on the main toolbar
 """,
-
-    install_requires = [
-        'pyqtgraph',        
-        'matplotlib',
-        'numpy',
-        'pillow',
-        ],
 )
