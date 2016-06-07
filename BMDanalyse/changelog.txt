@@ -1,5 +1,5 @@
 
-BMDanalyse 0.1.4, 2016-XX-XX
+BMDanalyse 0.2.0, 2016-06-07
 ----------------------------
 - Add setLevels to imageWin Viewbox image showing bone loss and gain. This is
   now a requirement in pyqtgraph-develop.
