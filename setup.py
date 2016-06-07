@@ -7,21 +7,23 @@ here = path.abspath(path.dirname(__file__))
 
 # function to open the readme file
 def readme():
-    with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+    with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
         return f.read()
-
-import BMDanalyse
+        
+# find the version
+exec(open(path.join('BMDanalyse','version.py')).read())
 
 setup(
     name = 'BMDanalyse',
-    version = BMDanalyse.__version__,
+    version = __version__,
     description = 'Tool to analyse regional changes in a time series of 2D medical images.',
+    long_description = readme(),
     license = 'MIT license',
     keywords = ["python,medical,image,analysis,ROIs,xray"],    
     author = 'Michael Hogg',
     author_email = 'michael.christopher.hogg@gmail.com',
     url = "http://pypi.python.org/pypi/BMDanalyse/",
-    download_url = "https://pypi.python.org/packages/source/B/BMDanalyse/BMDanalyse-%s.zip" % BMDanalyse.__version__,
+    download_url = "https://pypi.python.org/packages/source/B/BMDanalyse/BMDanalyse-%s.zip" % __version__,
     packages = ['BMDanalyse'],
     package_data = {'BMDanalyse': ['icons/*','changeLog.txt',
                                    'sampleMedicalImages/Implant/XYplane/*',
@@ -43,21 +45,4 @@ setup(
         "Topic :: Scientific/Engineering :: Medical Science Apps.",
         "Topic :: Scientific/Engineering :: Visualization",
         ],
-    long_description = """
-About
------
-
-A tool used for the regional analysis of a time series of 2D medical images, typically X-rays or virtual X-rays (output from a computer simulation, such as those created using `pyvXRAY <http://pypi.python.org/pypi/pyvxray>`_).
-Intended to be used to evaluate the bone gain / loss in a number of regions of interest (ROIs) over time, typically due to bone remodelling as a result of stress shielding around an orthopaedic implant.
-    
-Written in pure Python using PyQt4/PySide, pyqtgraph, numpy, PIL and matplotlib. Should work on any platform, but has only been tested on Windows.
-
-How to use
-----------
-
- - Load a time series of 2D medical images (in image format such as bmp, png etc). 
- - Use the up / down arrows below the image file list to place the images in chronological order. A time series of virtual X-rays is provided in the sampleMedicalImages directory. 
- - Create some Regions of Interest (ROIs) and run the ROI analysis tool from the Analyse option on the main toolbar
- - Run the Image analysis tool from the Analyse option on the main toolbar
-""",
 )
