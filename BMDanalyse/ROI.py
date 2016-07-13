@@ -23,6 +23,7 @@ class Handle(pgROI.Handle):
     def __init__(self, radius, typ=None, pen=(200, 200, 220), parent=None, deletable=False):
         pgROI.Handle.__init__(self,radius, typ, pen, parent, deletable)
         self.setSelectable(True)
+        self.penHover = fn.mkPen(255, 255, 0)
         
     def setSelectable(self,isActive):
         self.isActive = isActive
@@ -47,7 +48,7 @@ class Handle(pgROI.Handle):
                 if int(self.acceptedMouseButtons() & btn) > 0 and ev.acceptClicks(btn):
                     hover=True
         if hover:
-            self.currentPen = fn.mkPen(255, 255,0)
+            self.currentPen = self.penHover
         else:
             self.currentPen = self.pen
         self.update()  
@@ -128,7 +129,6 @@ class ROI(pgROI.ROI):
     def paint(self, p, opt, widget):
         p.save()
         r = self.boundingRect()
-        #p.setRenderHint(QtGui.QPainter.Antialiasing)
         p.setPen(self.currentPen)
         p.translate(r.left(), r.top())
         p.scale(r.width(), r.height())
@@ -170,10 +170,6 @@ class PolylineSegment(pgROI.LineSegmentROI):
             self.setMouseHover(False)
             
     def setMouseHover(self, hover):
-        ## Inform the ROI that the mouse is(not) hovering over it
-        #if self.mouseHovering == hover:
-        #    return
-        #self.mouseHovering = hover
         if hover:
             self.currentPen = self.penHover
         else:
@@ -181,7 +177,6 @@ class PolylineSegment(pgROI.LineSegmentROI):
         self.update()            
             
     def paint(self, p, *args):
-        #p.setRenderHint(QtGui.QPainter.Antialiasing)
         p.setPen(self.currentPen)
         h1 = self.handles[0]['item'].pos()
         h2 = self.handles[1]['item'].pos()
@@ -235,10 +230,11 @@ class selectableROI(object):
         ''' Redefine hoverEvent
             Partly to ensure that roi does not accept any mouse clicks '''
         if (self.translatable) and (not ev.isExit()) and ev.acceptDrags(QtCore.Qt.LeftButton):
+        #if not ev.isExit():   
             self.setMouseHover(True)
             self.sigHoverEvent.emit(self)
         else:
-            self.setMouseHover(False)             
+            self.setMouseHover(False)      
         
     def mouseDragEvent(self, ev):
         if ev.isStart():  
