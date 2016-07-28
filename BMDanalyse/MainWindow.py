@@ -280,13 +280,14 @@ class MainWindow(QtGui.QMainWindow):
             avgROIvalue = arrRegion.mean(axis=0).mean(axis=0)
             BMD[:,i]    = avgROIvalue
         # Calculate the BMD change (percentage of original)
-        tol = 1.0e-06
-        for i in xrange(numROIs):
-            if abs(BMD[0,i])<tol: 
-                BMD[:,i] = 100.
-            else: 
-                BMD[:,i] = BMD[:,i] / BMD[0,i] * 100.
-        self.BMDchange = BMD-100.
+        #tol = 1.0e-06
+        #for i in xrange(numROIs):
+        #    if abs(BMD[0,i])<tol: 
+        #        BMD[:,i] = 100.
+        #    else: 
+        #        BMD[:,i] = BMD[:,i] / BMD[0,i] * 100.
+        #self.BMDchange = BMD-100.
+        self.BMDchange = BMD        
         if self.timeData is None or self.timeData.size!=numImages:
             self.timeData = np.arange(numImages,dtype=float)
         # Plot results  
