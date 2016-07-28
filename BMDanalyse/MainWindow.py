@@ -287,7 +287,7 @@ class MainWindow(QtGui.QMainWindow):
         #    else: 
         #        BMD[:,i] = BMD[:,i] / BMD[0,i] * 100.
         #self.BMDchange = BMD-100.
-        self.BMDchange = BMD        
+        self.BMDchange = BMD.copy()     
         if self.timeData is None or self.timeData.size!=numImages:
             self.timeData = np.arange(numImages,dtype=float)
         # Plot results  
